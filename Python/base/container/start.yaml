@@ -1,0 +1,16 @@
+services:
+  python-base:
+    image: cuile/python-base
+    build:
+      context: /base/container/
+      dockerfile: ./dockerfile
+    container_name: base
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - /base/app/:/code/app/
+    restart: unless-stopped
+    networks:
+      - python-base
+    dns:
+      - 10.89.0.1

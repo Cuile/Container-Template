@@ -1,0 +1,42 @@
+services:
+  hermes:
+    # 使用官方镜像
+    image: nousresearch/hermes-agent:v2026.6.19
+    container_name: hermes-podman
+    restart: unless-stopped
+
+    # 关键：持久化存储的挂载点
+    volumes:
+      # Hermes 的核心数据（配置、记忆、会话、技能）会存到这里
+      - hermes_data:/opt/data/
+      # 可选：映射日志目录，方便查看
+      - hermes_logs:/app/logs/
+
+    # 可选：暴露 Web 管理界面和 API
+    ports:
+      - "8642:8642" # API 服务端口
+      - "9119:9119" # Web Dashboard 端口
+
+    # 环境变量配置
+    environment:
+      # 启用 Web Dashboard [citation:7]
+      HERMES_DASHBOARD: "1"
+      # 启用 API Server
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      # 【重要】修改下面这个 API Key，使用强密码
+      API_SERVER_KEY: "your-very-strong-api-server-key-change-me"
+      # 设置容器内的工作目录，要与 volumes 挂载路径一致 [citation:8]
+      HERMES_HOME: /opt/data/.hermes
+
+    # 资源限制建议 [citation:7]
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
+volumes:
+  hermes_data:
+    name: hermes_data
+  hermes_logs:
+    name: hermes_logs

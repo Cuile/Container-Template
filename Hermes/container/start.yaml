@@ -1,3 +1,4 @@
+# https://github.com/vectorize-io/hindsight/blob/main/docker/docker-compose/custom-models/docker-compose.yaml
 services:
   hermes:
     # 使用官方镜像
@@ -14,22 +15,23 @@ services:
       - API_SERVER_ENABLED=true
       - API_SERVER_HOST=0.0.0.0
       # 【重要】修改下面这个 API Key，使用强密码
-      - API_SERVER_KEY=<key>
-      # 设置容器内的工作目录，要与 volumes 挂载路径一致 [citation:8]
+      - API_SERVER_KEY=6677446633
+      # 设置容器内的工作目录，要与 volumes 挂载路径一致
       - HERMES_HOME=/opt/data/.hermes
       - TZ=Asia/Shanghai
+    # 关键：持久化存储的挂载点
     volumes:
       # Hermes 的核心数据（配置、记忆、会话、技能）会存到这里
       - hermes_data:/opt/data/
       # 可选：映射日志目录，方便查看
       - hermes_logs:/app/logs/
+    # 可选：暴露 Web 管理界面和 API
     ports:
       - "8642:8642" # API 服务端口
       - "9119:9119" # Web Dashboard 端口
-    
     command: ['gateway', 'run']
 
-    # 资源限制建议 [citation:7]
+    # 资源限制建议
     deploy:
       resources:
         limits:
@@ -37,14 +39,24 @@ services:
           cpus: "2.0"
   
   hindsight:
-    image: ghcr.io/vectorize-io/hindsight:0.8.3-slim
+    build:
+      context: .
+      dockerfile: dockerfile
     container_name: hindsight
     restart: unless-stopped
     environment:
+      - HF_ENDPOINT=https://hf-mirror.com #使用hugging face国内镜像
       - HINDSIGHT_API_LLM_PROVIDER=deepseek
-      - HINDSIGHT_API_LLM_API_KEY=<api key>
-      - HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash
+      - HINDSIGHT_API_LLM_API_KEY=sk-aa587ceee3b242d786bd33eb5a71f0f5
+      - HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash 
+      - HINDSIGHT_API_LLM_BASE_URL=https://api.deepseek.com 
+      - HINDSIGHT_API_EMBEDDINGS_PROVIDER=local
+      - HINDSIGHT_API_EMBEDDINGS_LOCAL_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      - HINDSIGHT_API_RERANKER_PROVIDER=local
+      - HINDSIGHT_API_RERANKER_LOCAL_MODEL=cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
       - TZ=Asia/Shanghai
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1
     volumes:
       - hindsight_data:/home/hindsight/.pg0
     ports:

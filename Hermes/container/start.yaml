@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     # 环境变量配置
     environment:
+      - TZ=Asia/Shanghai
       # 启用 Web Dashboard
       - HERMES_DASHBOARD=1
       - HERMES_DASHBOARD_HOST=0.0.0.0
@@ -15,10 +16,12 @@ services:
       - API_SERVER_ENABLED=true
       - API_SERVER_HOST=0.0.0.0
       # 【重要】修改下面这个 API Key，使用强密码
-      - API_SERVER_KEY=<api key>
+      - API_SERVER_KEY=${HERMES_API_KEY}
       # 设置容器内的工作目录，要与 volumes 挂载路径一致
       - HERMES_HOME=/opt/data/.hermes
-      - TZ=Asia/Shanghai
+      # LLM
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_BASE_URL=https://api.deepseek.com
     # 关键：持久化存储的挂载点
     volumes:
       # Hermes 的核心数据（配置、记忆、会话、技能）会存到这里
@@ -45,16 +48,17 @@ services:
     container_name: hindsight
     restart: unless-stopped
     environment:
-      - HF_ENDPOINT=https://hf-mirror.com #使用hugging face国内镜像
+      - TZ=Asia/Shanghai
+      - HF_ENDPOINT=https://hf-mirror.com    #使用hugging face国内镜像
       - HINDSIGHT_API_LLM_PROVIDER=deepseek
-      - HINDSIGHT_API_LLM_API_KEY=<api key>
+      - HINDSIGHT_API_LLM_API_KEY=${DEEPSEEK_API_KEY}
       - HINDSIGHT_API_LLM_MODEL=deepseek-v4-flash 
       - HINDSIGHT_API_LLM_BASE_URL=https://api.deepseek.com 
       - HINDSIGHT_API_EMBEDDINGS_PROVIDER=local
       - HINDSIGHT_API_EMBEDDINGS_LOCAL_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
       - HINDSIGHT_API_RERANKER_PROVIDER=local
       - HINDSIGHT_API_RERANKER_LOCAL_MODEL=cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
-      - TZ=Asia/Shanghai
+      - HINDSIGHT_CONTROL_PLANE_ENABLED=true # 启用 WebUI
       - HF_HUB_OFFLINE=1
       - TRANSFORMERS_OFFLINE=1
     volumes:

@@ -1,3 +1,5 @@
 #!/bin/bash
  
-podman-compose -f ../container/start.yaml up -d
+podman-compose --env-file ../container/.env \
+               -f ../container/start.yaml \
+               up -d

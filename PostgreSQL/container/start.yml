@@ -3,11 +3,11 @@ services:
     image: postgres:17-alpine
     container_name: postgres
     environment:
-      TZ: Asia/Shanghai
-      LANG: zh_CN.UTF-8
-      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=zh-CN"
-      POSTGRES_PASSWORD: <password>
-      PGDATA: /var/lib/postgresql/data/pgdata
+      - TZ=Asia/Shanghai
+      - LANG=zh_CN.UTF-8
+      - POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=zh-CN"
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - pgdata:/var/lib/postgresql/data/pgdata
     restart: unless-stopped
@@ -22,8 +22,8 @@ services:
     image: adminer:5-standalone
     container_name: adminer
     environment:
-      ADMINER_DEFAULT_SERVER: postgres
-      TZ: Asia/Shanghai
+      - TZ=Asia/Shanghai
+      - ADMINER_DEFAULT_SERVER=postgres
     restart: unless-stopped
     depends_on:
       - postgres

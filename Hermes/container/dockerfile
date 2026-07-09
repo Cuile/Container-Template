@@ -6,14 +6,14 @@ RUN uv pip install --python /app/api/.venv/bin/python --no-cache \
     'transformers>=4.53.0' \
     'torch>=2.6.0'
 
-    ARG EMBEDDER=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+ARG EMBEDDER=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 ARG RERANKER=cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
 
 # HF_ENDPOINT=https://hf-mirror.com在国内网络环境下很重要
 ENV HF_HUB_DOWNLOAD_TIMEOUT=600 \
     HF_ENDPOINT=https://hf-mirror.com
 
-    RUN python -c "\
+RUN python -c "\
 from sentence_transformers import SentenceTransformer, CrossEncoder; \
 SentenceTransformer('${EMBEDDER}'); \
 CrossEncoder('${RERANKER}')"

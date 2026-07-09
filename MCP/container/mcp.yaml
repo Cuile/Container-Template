@@ -1,0 +1,14 @@
+services:
+  mcp-service:
+    image: cuile/mcp-service
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: mcp
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../src/:/code/app/
+    restart: unless-stopped

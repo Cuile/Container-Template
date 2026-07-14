@@ -1,0 +1,14 @@
+name: frpc
+services:
+  frpc:
+    image: snowdreamtech/frpc:latest
+    container_name: frpc
+    ports:
+      - "80:80"
+      - "2201-2299:2201-2299"
+      - "5901-5999:5901-5999"
+      - "9100-9199:9100-9199"
+    volumes:
+      - ../conf/:/etc/frp/
+    restart: always
+    network_mode: "bridge"

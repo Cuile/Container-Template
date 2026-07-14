@@ -1,0 +1,13 @@
+bindPort = 7000
+quicBindPort = 7000
+
+webServer.addr = "0.0.0.0"
+webServer.port = 7070
+webServer.user = "<user>"
+webServer.password = "<password>"
+transport.maxPoolCount = 9
+allowPorts = [{ start = 8000, end = 8030 }]
+
+[auth]
+method = "token"
+token = "<token>"

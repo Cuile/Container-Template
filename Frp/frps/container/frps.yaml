@@ -1,0 +1,18 @@
+services:
+  frps:
+    image: snowdreamtech/frps:latest
+    container_name: frps
+    expose:
+      - "7070"
+    ports:
+      - "7000:7000"
+      - "7000:7000/udp"
+      - "8000-8030:8000-8030"
+      - "8000-8030:8000-8030/udp"
+    volumes:
+      - ../../hjd-frps/conf/frps.toml:/etc/frp/frps.toml
+    restart: unless-stopped
+    networks:
+      - hjd-services
+    dns:
+      - 10.89.0.1

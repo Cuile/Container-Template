@@ -1,0 +1,85 @@
+services:
+  # postgres: 用于 Prefect 的数据库存储
+  postgres:
+    image: postgres:14-alpine
+    container_name: prefect-postgres
+    environment:
+      - POSTGRES_USER=prefect
+      - POSTGRES_PASSWORD=prefect
+      - POSTGRES_DB=prefect
+      - TZ=Asia/Shanghai # 容器本地时间
+      - PGTZ=Asia/Shanghai # PostgreSQL 服务器时区（影响 now()、时间戳写入）
+    volumes:
+      - prefect_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # redis: 用于 Prefect 的消息队列和缓存
+  redis:
+    image: redis:7-alpine
+    container_name: prefect-redis
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - prefect_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # prefect-server: 用于启动 Prefect 的服务器组件，包括 API 和 UI
+  prefect-server:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect-server
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      - TZ=Asia/Shanghai # 新增
+      - PREFECT_UI_URL=http://0.0.0.0:4200
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_SERVER_API_PORT=4200
+      - PREFECT_SERVER_UI_V2_ENABLED=True
+      - PREFECT_SERVER_UI_SHOW_PROMOTIONAL_CONTENT=False
+      - PREFECT_SERVER_UI_API_URL=http://192.168.1.16:4200/api
+      - PREFECT_SERVER_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
+      - PREFECT_MESSAGING_BROKER=prefect_redis.messaging
+      - PREFECT_MESSAGING_CACHE=prefect_redis.messaging
+      - PREFECT_REDIS_MESSAGING_HOST=prefect-redis
+      - PREFECT_REDIS_MESSAGING_PORT=6379
+      - PREFECT_REDIS_MESSAGING_DB=0
+      - PREFECT_LOGGING_LEVEL=DEBUG
+    command: ["prefect", "server", "start", "--no-services"]
+    ports:
+      - "4200:4200"
+
+  # prefect-services: 用于启动 Prefect 的服务组件，包括调度器、事件处理器等
+  prefect-services:
+    image: prefecthq/prefect:3-latest
+    container_name: prefect-services
+    depends_on:
+      prefect-server:
+        condition: service_started
+    environment:
+      - TZ=Asia/Shanghai # 新增
+      - PREFECT_SERVER_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect@prefect-postgres:5432/prefect
+      - PREFECT_MESSAGING_BROKER=prefect_redis.messaging
+      - PREFECT_MESSAGING_CACHE=prefect_redis.messaging
+      - PREFECT_REDIS_MESSAGING_HOST=prefect-redis
+      - PREFECT_REDIS_MESSAGING_PORT=6379
+      - PREFECT_REDIS_MESSAGING_DB=0
+      - PREFECT_LOGGING_LEVEL=DEBUG
+    command: ["prefect", "server", "services", "start"]
+
+volumes:
+  prefect_postgres_data:
+  prefect_redis_data:

@@ -1,0 +1,13 @@
+FROM prefecthq/prefect:3-latest
+
+# pip换国内清华的源
+RUN pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple --upgrade pip \
+&& pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
+# 安装项目依赖库
+WORKDIR /code/
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 启动项目
+WORKDIR /code/app/

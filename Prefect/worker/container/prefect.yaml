@@ -1,0 +1,22 @@
+services:
+  # prefect-worker: 用于执行 Prefect 流程任务
+  prefect-worker:
+    image: cuile/prefect
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: prefect-worker
+    depends_on:
+      prefect-server:
+        condition: service_started
+    environment:
+      - TZ=Asia/Shanghai # 新增，最重要：流程代码 date.today() 依赖它
+      - PREFECT_API_URL=http://prefect-server:4200/api
+      - PREFECT_LOGGING_LEVEL=DEBUG
+      - PREFECT_LOGGING_SETTINGS_PATH=/code/app/container/prefect/logging.yaml
+      # - PREFECT_WORKER_PREFETCH_SECONDS=1 # 预取任务的时间窗口，单位为秒
+    command: ["prefect", "worker", "start", "--pool", "local-pool"]
+    restart: on-failure
+    volumes:
+      - ../../:/code/app/
+

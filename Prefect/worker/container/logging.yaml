@@ -1,0 +1,41 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  standard:
+    format: "%(asctime)s | %(levelname)-7s | %(name)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  flow_run_fmt:
+    format: "%(asctime)s | %(levelname)-7s | Flow run %(flow_run_name)r - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+  task_run_fmt:
+    format: "%(asctime)s | %(levelname)-7s | Task run %(task_run_name)r - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  api:
+    level: 0
+    class: "prefect.logging.handlers.APILogHandler"
+  console:
+    level: 0
+    class: "prefect.logging.handlers.PrefectConsoleHandler"
+    formatter: standard
+    stream: "ext://sys.stdout"
+
+loggers:
+  prefect:
+    level: "${PREFECT_LOGGING_LEVEL}"
+    handlers: [console]
+    propagate: False
+  prefect.flow_runs:
+    level: "${PREFECT_LOGGING_LEVEL}"
+    handlers: [api, console]
+    propagate: False
+  prefect.task_runs:
+    level: "${PREFECT_LOGGING_LEVEL}"
+    handlers: [api, console]
+    propagate: False
+
+# root:
+#   level: "WARNING"
+#   handlers: [console]

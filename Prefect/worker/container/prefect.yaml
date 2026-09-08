@@ -6,9 +6,6 @@ services:
       context: .
       dockerfile: dockerfile
     container_name: prefect-worker
-    depends_on:
-      prefect-server:
-        condition: service_started
     environment:
       - TZ=Asia/Shanghai # 新增，最重要：流程代码 date.today() 依赖它
       - PREFECT_API_URL=http://prefect-server:4200/api

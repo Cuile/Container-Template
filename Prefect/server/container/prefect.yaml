@@ -1,7 +1,7 @@
 services:
   # postgres: 用于 Prefect 的数据库存储
   postgres:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     container_name: prefect-postgres
     environment:
       - POSTGRES_USER=prefect
@@ -35,8 +35,9 @@ services:
       retries: 5
 
   # prefect-server: 用于启动 Prefect 的服务器组件，包括 API 和 UI
+  # 考虑到老硬件的兼容性，必须使用python 3.11版本
   prefect-server:
-    image: prefecthq/prefect:3-latest
+    image: prefecthq/prefect:3-python3.11
     container_name: prefect-server
     depends_on:
       postgres:
@@ -63,8 +64,9 @@ services:
       - "4200:4200"
 
   # prefect-services: 用于启动 Prefect 的服务组件，包括调度器、事件处理器等
+  # 考虑到老硬件的兼容性，必须使用python 3.11版本
   prefect-services:
-    image: prefecthq/prefect:3-latest
+    image: prefecthq/prefect:3-python3.11
     container_name: prefect-services
     depends_on:
       prefect-server:

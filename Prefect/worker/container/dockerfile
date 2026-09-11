@@ -1,4 +1,4 @@
-FROM prefecthq/prefect:3-latest
+FROM prefecthq/prefect:3-python3.11
 
 # pip换国内清华的源
 RUN pip install -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple --upgrade pip \

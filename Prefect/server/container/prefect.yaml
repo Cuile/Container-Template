@@ -10,7 +10,7 @@ services:
       - TZ=Asia/Shanghai # 容器本地时间
       - PGTZ=Asia/Shanghai # PostgreSQL 服务器时区（影响 now()、时间戳写入）
     volumes:
-      - prefect_postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U prefect"]
       interval: 5s
@@ -27,7 +27,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - prefect_redis_data:/data
+      - redis_data:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping"]
       interval: 5s
@@ -83,5 +83,7 @@ services:
     command: ["prefect", "server", "services", "start"]
 
 volumes:
-  prefect_postgres_data:
-  prefect_redis_data:
+  postgres_data:
+    name: prefect_postgres_data
+  redis_data:
+    name: prefect_redis_data
